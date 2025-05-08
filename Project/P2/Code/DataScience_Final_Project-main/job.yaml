@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ds-pipeline-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: ds-pipeline
+        image: ds-pipeline-with-spacy
+      restartPolicy: Never
+  backoffLimit: 2

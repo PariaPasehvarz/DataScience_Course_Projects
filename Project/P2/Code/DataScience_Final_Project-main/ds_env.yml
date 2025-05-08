@@ -1,0 +1,47 @@
+name: ds-env
+channels:
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - bzip2=1.0.8=h5eee18b_6
+  - ca-certificates=2025.2.25=h06a4308_0
+  - ld_impl_linux-64=2.40=h12ee557_0
+  - libffi=3.4.4=h6a678d5_1
+  - libgcc-ng=11.2.0=h1234567_1
+  - libgomp=11.2.0=h1234567_1
+  - libstdcxx-ng=11.2.0=h1234567_1
+  - libuuid=1.41.5=h5eee18b_0
+  - ncurses=6.4=h6a678d5_0
+  - openssl=3.0.16=h5eee18b_0
+  - pip=25.1=pyhc872135_2
+  - python=3.10.16=he870216_1
+  - readline=8.2=h5eee18b_0
+  - setuptools=78.1.1=py310h06a4308_0
+  - sqlite=3.45.3=h5eee18b_0
+  - tk=8.6.14=h39e8969_0
+  - tzdata=2025b=h04d1e81_0
+  - wheel=0.45.1=py310h06a4308_0
+  - xz=5.6.4=h5eee18b_1
+  - zlib=1.2.13=h5eee18b_1
+  - pip:
+      - blis==0.7.11
+      - certifi==2025.4.26
+      - click==8.1.8
+      - cloudpathlib==0.16.0
+      - en-core-web-md==3.7.1
+      - idna==3.10
+      - joblib==1.5.0
+      - numpy==1.26.4
+      - pydantic==1.10.22
+      - scikit-learn==1.6.1
+      - six==1.17.0
+      - smart-open==6.4.0
+      - spacy==3.7.4
+      - sqlalchemy==2.0.40
+      - thinc==8.2.5
+      - threadpoolctl==3.6.0
+      - typer==0.9.4
+      - urllib3==2.4.0
+      - weasel==0.3.4
+prefix: /home/aidin/anaconda3/envs/ds-env
