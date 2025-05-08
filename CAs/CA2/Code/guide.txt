@@ -1,0 +1,261 @@
+Setup Zookeeper:
+
+# Navigate to the Kafka directory
+cd /opt/kafka
+
+# Start Zookeeper (default port is 2181)
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+Run kafka:
+
+bin/kafka-server-start.sh config/server.properties
+
+Running kafrop:
+
+java -jar kafdrop-3.29.0.jar --kafka.brokerConnect=localhost:9092
+http://localhost:9000
+
+if you get problem anywhere, remove checkpoints:
+rm -rf /tmp/checkpoints/*
+
+Running MongoDB GUI:
+
+mongodb-compass
+
+Batch Processing Layer
+
+Data Storage Implementation:
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run aggregation jobs in another terminal
+6. In another terminal, run mongoDB shell use mongosh
+   Enter in it: 
+   use darooghe_db
+
+   // See summarized transactions
+   db.summarized_transactions.find().pretty()
+
+   // See commission reports
+   db.commission_reports.find().pretty()
+   
+   you can use GUI too:
+   mongodb-compass -> summarized_transactions, commission_reports
+
+Real-Time Processing Layer
+
+Spark Streaming Application:
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run streaming app in another terminal
+   use this command:
+   spark-submit   --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5   streaming_app.py
+
+
+Fraud Detection System
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run fraud detector in another terminal
+   use this command:
+   spark-submit   --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5   fraud_detector.py
+6. Run fraud_tester in another terminal to check if fraud detector can handle those cases
+7. you can see result in kafdrop -> fraud_alerts
+
+
+Real-Time Commission Analytics
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run streaming app in another terminal
+   use this command:
+   spark-submit   --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5   streaming_app.py
+6. You can see results in Kafdrop -> commission_type, commission_ratio, top_merchants
+
+For running transaction_pattern_analysis part use:
+spark-submit   --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 transaction_pattern_analysis.py
+
+For running commission_analysis part use:
+spark-submit   --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 commission_analysis.py
+
+Bonus Tasks 
+
+Advanced Fraud Patterns
+
+Temporal Analysis
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run temporal_analysis in another terminal
+   use this command:
+   spark-submit   --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 temporal_analysis.py
+6. You can see results in mongodb -> outside_business_hours, category_active_hours, transaction_spikes
+
+Commission Audit System
+
+Dynamic Pricing Simulator
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run commission_audit in another terminal
+   use this command:
+   spark-submit   --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5   commission_audit.py
+6. You can see results in kafdrop -> commission_audit
+
+Pipeline Optimization
+
+Resource Monitoring
+
+Kafka consumer lag
+
+What should be installed?
+
+sudo apt-get install prometheus
+pip install prometheus_client confluent-kafka pymongo
+pip install kafka-python prometheus_client
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+   Before running it:
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+
+5. you can see lag number in last line here:
+http://localhost:8000/metrics
+
+6. if you want to monitor it in Prometheus GUI too:
+cd /usr/bin
+sudo ./prometheus --config.file=/home/paria/Documents/UT/DataScience/CA2/prometheus.yml
+Then go to:
+http://localhost:9090
+Go to graph section: enter: kafka_consumer_lag
+
+Spark executor CPU/MEM
+
+sudo nano /opt/jmx/jmx_config.yaml
+write this there:
+startDelaySeconds: 0
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  - pattern: 'java.lang:type=OperatingSystem'
+    name: jvm_cpu
+    type: GAUGE
+    attr:
+      ProcessCpuLoad: process_cpu_load
+      SystemCpuLoad: system_cpu_load
+      AvailableProcessors: available_processors
+      SystemLoadAverage: system_load_average
+
+  - pattern: 'java.lang:type=Memory'
+    name: jvm_memory
+    type: GAUGE
+    attr:
+      HeapMemoryUsage.used: heap_used
+      HeapMemoryUsage.committed: heap_committed
+      HeapMemoryUsage.max: heap_max
+      NonHeapMemoryUsage.used: nonheap_used
+      NonHeapMemoryUsage.committed: nonheap_committed
+      NonHeapMemoryUsage.max: nonheap_max
+
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run streaming app (or anything you want) in another terminal
+   use this command:
+   spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5 \
+  --conf "spark.executor.extraJavaOptions=-javaagent:/opt/jmx/jmx_prometheus_javaagent-0.18.0.jar=8081:/opt/jmx/jmx_config.yaml" \
+  --conf "spark.driver.extraJavaOptions=-javaagent:/opt/jmx/jmx_prometheus_javaagent-0.18.0.jar=8080:/opt/jmx/jmx_config.yaml" \
+  streaming_app.py
+  
+6. you can see anything related to memory here:
+http://localhost:8080/metrics
+
+7. if you want to monitor it in Prometheus GUI too:
+cd /usr/bin
+sudo ./prometheus --config.file=/home/paria/Documents/UT/DataScience/CA2/prometheus.yml
+Then go to:
+http://localhost:9090
+Go to graph section: enter: 
+Shows live heap memory used by the JVM (in bytes) -> jvm_memory_bytes_used{area="heap"}
+Shows how full your heap memory is -> 100 * jvm_memory_bytes_used{area="heap"} / jvm_memory_bytes_max{area="heap"}
+Current Non-Heap Memory Used(Tracks memory for class metadata, code caches, etc.) -> jvm_memory_bytes_used{area="nonheap"}
+Process Resident Memory (RAM used by executor) -> process_resident_memory_bytes
+Total Committed Memory(Memory reserved by JVM (not necessarily used)) -> jvm_memory_bytes_committed{area="heap"}
+
+JVM garbage collection time
+
+What should be installed?
+
+sudo mkdir -p /opt/jmx
+wget https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+sudo nano /opt/jmx/jmx_config.yaml
+write this there:
+startDelaySeconds: 0
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  - pattern: 'java.lang:type=GarbageCollector,name=(.*)'
+    name: jvm_gc_time_seconds
+    type: COUNTER
+    attr:
+      CollectionTime: collection_time
+      CollectionCount: collection_count
+    labels:
+      gc_collector: "$1"
+      
+1. Run zookeeper in one terminal
+2. Run Kafka in another terrminal
+3. Run Producer in another terminal
+4. Run Consumer in another terminal
+5. Run streaming app (or anything you want) in another terminal
+   use this command:
+   spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5 \
+  --conf "spark.driver.extraJavaOptions=-javaagent:/opt/jmx/jmx_prometheus_javaagent-0.18.0.jar=8080:/opt/jmx/jmx_config.yaml" \
+  --conf "spark.executor.extraJavaOptions=-javaagent:/opt/jmx/jmx_prometheus_javaagent-0.18.0.jar=8081:/opt/jmx/jmx_config.yaml" \
+  streaming_app.py
+6. you can see jvm_gc_collection_seconds summary here:
+http://localhost:8080/metrics
+
+7. if you want to monitor it in Prometheus GUI too:
+cd /usr/bin
+sudo ./prometheus --config.file=/home/paria/Documents/UT/DataScience/CA2/prometheus.yml
+Then go to:
+http://localhost:9090
+Go to graph section: enter: jvm_gc_collection_seconds_sum / jvm_gc_collection_seconds_count
+This will show:
+The average time (in seconds) the JVM spent per garbage collection event since the application started.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
